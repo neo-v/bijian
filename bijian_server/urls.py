@@ -15,9 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from bijian_server import login
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-	url(r'^login/$','login.views.login'),
+]
 
+#app login url
+urlpatterns += urlpatterns ['login.views'
+    url(r'^acount/$','register'),
+    url(r'^token/$','login'),#get,delete
+    # web extend
+]
+
+urlpatterns += [
+    url(r'^auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
 ]
