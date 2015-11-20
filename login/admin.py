@@ -4,12 +4,13 @@ author:Neo
 """
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.admin import GroupAdmin
+# from django.contrib.auth.admin import GroupAdmin
 from django.utils.translation import ugettext_lazy as _
-from login import LocalUser
-from django.contrib.auth.models import Group
+# from django.contrib.auth.models import Group
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth import get_user_model
+from login.models import LocalUser
 
 
 # Register your models here.
@@ -30,7 +31,7 @@ class UserCreationForm(forms.ModelForm):
         help_text=_("Enter the same password as above, for verification."))
 
     class Meta:
-        model = LocalUser
+        model = get_user_model()
         fields = ("telephone",)
 
     def clean_password2(self):
@@ -59,7 +60,7 @@ class UserChangeForm(forms.ModelForm):
                     "using <a href=\"password/\">this form</a>."))
 
     class Meta:
-        model = LocalUser
+        model = get_user_model()
         fields = '__all__'
 
     def clean_password(self):
@@ -83,8 +84,8 @@ class MyUserAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2'),
         }),
     )
-    form = UserChangeForm
-    add_form = UserCreationForm
+    # form = UserChangeForm
+    # add_form = UserCreationForm
     list_display = ('telephone', 'username', 'email', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('telephone', 'username', 'first_name', 'last_name', 'email')
@@ -92,5 +93,5 @@ class MyUserAdmin(UserAdmin):
     filter_horizontal = ('groups', 'user_permissions',)
 
 
-admin.site.register(Group, GroupAdmin)
+# admin.site.register(Group, GroupAdmin)
 admin.site.register(LocalUser, MyUserAdmin)
