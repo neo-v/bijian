@@ -1,4 +1,6 @@
 bijian server develop branch
 ============================
-empty now
-============================
+requirements:
+1.Django 1.8
+2.django-restful-framework 3.3
+3.JSON Web Token auth
