@@ -84,8 +84,8 @@ class MyUserAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2'),
         }),
     )
-    # form = UserChangeForm
-    # add_form = UserCreationForm
+    form = UserChangeForm
+    add_form = UserCreationForm
     list_display = ('telephone', 'username', 'email', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('telephone', 'username', 'first_name', 'last_name', 'email')

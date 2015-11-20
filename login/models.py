@@ -101,6 +101,7 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
     objects = LocalUserManager()
 
     USERNAME_FIELD = 'telephone'
+    REQUIRED_FIELDS = ['email']
 
     class Meta:
         verbose_name = _('user')
