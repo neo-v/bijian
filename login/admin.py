@@ -59,6 +59,11 @@ class UserChangeForm(forms.ModelForm):
                     "this user's password, but you can change the password "
                     "using <a href=\"password/\">this form</a>."))
 
+    error_messages = {
+        'username_unique': _("username already exist."),
+        'email_unique': _("email already exist."),
+    }
+
     class Meta:
         model = get_user_model()
         fields = '__all__'
@@ -68,6 +73,27 @@ class UserChangeForm(forms.ModelForm):
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial["password"]
+
+    def clean_username(self):
+        # username could be unique if not none
+        username = self.cleaned_data.get("username")
+        if username and username != self.instance.username and \
+                self.Meta.model.objects.all().filter(username=username):
+            raise forms.ValidationError(
+                self.error_messages['username_unique'],
+                code='invalid',
+            )
+        return username
+
+    def clean_email(self):
+        # email could be unique if not none
+        email = self.cleaned_data.get("email")
+        if email and email != self.instance.email and self.Meta.model.objects.all().filter(email=email):
+            raise forms.ValidationError(
+                self.error_messages['email_unique'],
+                code='invalid',
+            )
+        return email
 
 
 class MyUserAdmin(UserAdmin):
@@ -81,7 +107,7 @@ class MyUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
+            'fields': ('telephone', 'password1', 'password2'),
         }),
     )
     form = UserChangeForm

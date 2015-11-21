@@ -13,7 +13,6 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
 
-
 # Create your models here.
 # user table for bijian app
 #
@@ -64,9 +63,9 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
         error_messages={
             'unique': _("A user with that telephone already exists."),
         })
-
+    # unique=True //control by logic code
     username = models.CharField(
-        _('username'), max_length=30, unique=True, blank=True,
+        _('username'), max_length=30,  blank=True,
         help_text=_('Required. 30 characters or fewer. Letters, digits and '
                     '@/./+/-/_ only.'),
         validators=[
@@ -76,13 +75,13 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
                                         'and @/./+/-/_ characters.'), 'invalid'),
         ],
         error_messages={
-            'unique': _("A user with that username already exists."),
+            'unique': _("A username with that username already exists."),
         })
 
     email = models.EmailField(
-        _('email address'), blank=True, unique=True,
+        _('email address'), blank=True,
         error_messages={
-            'unique': _("A user with that username already exists."),
+            'unique': _("A email with that email already exists."),
         })
 
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
