@@ -1,7 +1,7 @@
 """
 settings used for sqlite
 """
-from BaseSetting import *
+from BaseSettings import *
 
 
 DATABASES = {

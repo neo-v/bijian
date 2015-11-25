@@ -10,7 +10,14 @@ from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth import get_user_model
+
 from login.models import LocalUser
+from login.models import TeacherDetail
+from login.models import ParentDetail
+from login.models import SchoolDetail
+from login.models import OrganizationDetail
+from login.models import ClassInformation
+from login.models import CourseInformation
 
 
 # Register your models here.
@@ -99,7 +106,7 @@ class UserChangeForm(forms.ModelForm):
 class MyUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('telephone', 'password')}),
-        (_('Personal info'), {'fields': ('username', 'first_name', 'last_name', 'email')}),
+        (_('Personal info'), {'fields': ('username', 'first_name', 'last_name', 'email', 'social_id', 'type')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -112,12 +119,99 @@ class MyUserAdmin(UserAdmin):
     )
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ('telephone', 'username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('telephone', 'username', 'email', 'social_id', 'type', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-    search_fields = ('telephone', 'username', 'first_name', 'last_name', 'email')
+    search_fields = ('telephone', 'username', 'email')
     ordering = ('telephone', 'username',)
     filter_horizontal = ('groups', 'user_permissions',)
 
 
+# user_detail admin
+class TeacherAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': (('user', 'real_name', 'nick_name', 'contact_phone', 'avatar'),
+                           'class_id', 'intro', 'course')}),
+        (_('status'), {'fields': ('is_online', 'is_identify', 'is_adviser')}),
+    )
+    readonly_fields = (
+        'record_count', 'question_count', 'answer_count', 'forward_count',
+        'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+        'msg_count', 'review_count', 'is_online'
+    )
+    list_display = ('user_id', 'real_name', 'nick_name', 'contact_phone', 'avatar',
+                    'class_id', 'intro', 'course', 'is_adviser')
+    list_filter = ['is_online', 'is_identify', 'is_adviser']
+    search_fields = ('user', 'real_name', 'class_id')
+
+
+# user_detail admin
+class SchoolAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': (('user', 'school_name', 'contact_phone', 'avatar'),
+                           'intro', 'courses')}),
+        (_('status'), {'fields': ('is_online', 'is_identify', 'identity')}),
+    )
+    readonly_fields = (
+        'record_count', 'question_count', 'answer_count', 'forward_count',
+        'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+        'msg_count', 'review_count', 'is_online'
+    )
+    list_display = ('user_id', 'school_name', 'contact_phone', 'avatar',
+                    'intro', 'courses', 'identity')
+    list_filter = ['is_online', 'is_identify']
+    search_fields = ('user', 'school_name', 'contact_phone')
+
+
+# user_detail admin
+class ParentAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': (('user', 'real_name', 'nick_name', 'child_name', 'avatar'),
+                           'class_id', 'intro')}),
+        (_('status'), {'fields': ('is_online',)}),
+    )
+    readonly_fields = (
+        'record_count', 'question_count', 'answer_count', 'forward_count',
+        'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+        'msg_count', 'review_count', 'is_online'
+    )
+    list_display = ('user_id', 'real_name', 'nick_name', 'child_name', 'avatar',
+                    'intro', 'class_id')
+    list_filter = ['is_online']
+    search_fields = ('user', 'real_name', 'child_name')
+
+
+# user_detail admin
+class OrganizationAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': (('user', 'real_name', 'contact_phone', 'avatar'), 'intro')}),
+        (_('status'), {'fields': ('is_online', 'is_identify')}),
+    )
+    readonly_fields = (
+        'record_count', 'question_count', 'answer_count', 'forward_count',
+        'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+        'msg_count', 'review_count', 'is_online'
+    )
+    list_display = ('user_id', 'real_name', 'contact_phone', 'avatar',
+                    'intro')
+    list_filter = ['is_online', 'is_identify']
+    search_fields = ('user', 'real_name', 'contact_phone')
+
+
+class ClassAdmin(admin.ModelAdmin):
+    list_display = ('id', 'provence', 'city', 'school', 'grade', 'classes')
+    search_fields = ('classes',)
+
+
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'course', 'intro')
+    search_fields = ('course',)
+
+
 # admin.site.register(Group, GroupAdmin)
 admin.site.register(LocalUser, MyUserAdmin)
+admin.site.register(TeacherDetail, TeacherAdmin)
+admin.site.register(SchoolDetail, SchoolAdmin)
+admin.site.register(ParentDetail, ParentAdmin)
+admin.site.register(OrganizationDetail, OrganizationAdmin)
+admin.site.register(ClassInformation, ClassAdmin)
+admin.site.register(CourseInformation, CourseAdmin)

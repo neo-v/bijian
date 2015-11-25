@@ -1,7 +1,7 @@
 """
 settings used for mysql
 """
-from BaseSetting import *
+from BaseSettings import *
 
 
 DATABASES = {
