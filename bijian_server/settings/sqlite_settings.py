@@ -12,3 +12,4 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'login.LocalUser'
+LOGIN_REDIRECT_URL = '/admin'

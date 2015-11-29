@@ -14,17 +14,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
-from django.contrib import admin
+from login.routers import RegiserRouter,ReadOnlyRouter
 from login import views
+from django.contrib import admin
+
+regrouter = RegiserRouter()
+regrouter.register(r'users', views.UserViewSet, base_name='localuser')
+regrouter.register(r'parents', views.ParentViewSet, )
+regrouter.register(r'teachers', views.TeacherViewSet, )
+regrouter.register(r'schools', views.SchoolViewSet, )
+regrouter.register(r'organizations', views.OrganiztionViewSet, )
+
+read_only = ReadOnlyRouter()
+read_only.register(r'classes', views.ClassInfoViewSet, base_name='classinfo')
+read_only.register(r'courses', views.CourseInfoViewSet, base_name='courseinfo')
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
-]
-
-urlpatterns += [
-    url(r'^auth/register', views.RegisterView.as_view(), name='register'),
-]
-
-urlpatterns += [
+    url(r'^api/$', views.api_root),
+    url(r'^api/', include(regrouter.urls)),
+    url(r'^api/', include(read_only.urls)),
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+]
+
+urlpatterns += [
+   url(r'^admin/', include(admin.site.urls)),
 ]
