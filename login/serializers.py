@@ -101,13 +101,13 @@ class ClassInfoSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CourseInfoSerializer(serializers.HyperlinkedModelSerializer):
-    course_of = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail')
+    teacher_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail')
 
     class Meta:
         model = CourseInformation
         # exclude = ('user', 'class_id')
-        fields = ('id', 'course', 'intro', 'course_of')
-        read_only_fields = ('id', 'course', 'intro', 'course_of')
+        fields = ('id', 'course', 'intro', 'teacher_in')
+        read_only_fields = ('id', 'course', 'intro', 'teacher_in')
         extra_kwargs = {
            # 'url': {'lookup_field': 'user_id'},
         }

@@ -192,7 +192,7 @@ class TeacherDetail(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='teacher_of')
     avatar = models.CharField(_('avatar'), max_length=256,  blank=True)
     intro = models.CharField(_('introduce'), max_length=256,  blank=True)
-    course = models.ForeignKey('CourseInformation', related_name='course_of')
+    course = models.ForeignKey('CourseInformation', related_name='teacher_in')
 
     real_name = models.CharField(_('real_name'), max_length=30,  blank=True)
     nick_name = models.CharField(_('nick_name'), max_length=30,  blank=True)

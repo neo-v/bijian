@@ -14,18 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
-from login.routers import RegiserRouter,ReadOnlyRouter
+from login.routers import RegiserRouter, ReadOnlyRouter
 from login import views
 from django.contrib import admin
 
-regrouter = RegiserRouter()
+regrouter = RegiserRouter(trailing_slash=False)
 regrouter.register(r'users', views.UserViewSet, base_name='localuser')
 regrouter.register(r'parents', views.ParentViewSet, )
 regrouter.register(r'teachers', views.TeacherViewSet, )
 regrouter.register(r'schools', views.SchoolViewSet, )
 regrouter.register(r'organizations', views.OrganiztionViewSet, )
 
-read_only = ReadOnlyRouter()
+read_only = ReadOnlyRouter(trailing_slash=False)
 read_only.register(r'classes', views.ClassInfoViewSet, base_name='classinfo')
 read_only.register(r'courses', views.CourseInfoViewSet, base_name='courseinfo')
 

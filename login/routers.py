@@ -13,7 +13,7 @@ class RegiserRouter(SimpleRouter):
     routes = [
         Route(
             url=r'^{prefix}/$',
-            mapping={'post': 'create', 'get': 'list'},
+            mapping={'post': 'create', },
             name='{basename}-list',
             initkwargs={'suffix': 'List'}
         ),

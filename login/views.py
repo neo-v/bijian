@@ -20,6 +20,7 @@ from login.serializers import CourseInfoSerializer
 from login.serializers import SchoolSerializer
 from login.serializers import OrganizationSerializer
 
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -110,6 +111,7 @@ def api_root(request):
     param request:get
     return:
     """
+
     return Response({
         'users': reverse('localuser-list', request=request),
         'parents': reverse('parentdetail-list', request=request),
