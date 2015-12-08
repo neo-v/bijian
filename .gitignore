@@ -1,7 +1,9 @@
-#git ignore file
+# git ignore file
 
-#ignore .pyc file
+# ignore .pyc file
 *.pyc
 
-#ignore linux temp file
+# ignore linux temp file
 *.~
+# ignore settings 
+manage.py

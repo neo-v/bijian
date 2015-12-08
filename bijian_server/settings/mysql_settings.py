@@ -7,10 +7,10 @@ from BaseSettings import *
 DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_1234',
-        'USER': 'test_1234',
-        'PASSWORD': '123456',
-        'HOST': 'rdsv063y063k4cv6jkf3.mysql.rds.aliyuncs.com',
+        'NAME': 'bijian_sql_db',
+        'USER': 'kumeng_1234',
+        'PASSWORD': 'kumeng_1234',
+        'HOST': 'rds6iby5sh94840g8e06.mysql.rds.aliyuncs.com',
         'PORT': '3306',
    }
 }
