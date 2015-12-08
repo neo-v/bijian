@@ -91,6 +91,31 @@ REST_FRAMEWORK = {
     ),
     # Exception handling
     'EXCEPTION_HANDLER': 'login.exceptions.api_exception_handler',
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'login.authentication.LocalUserAuthentication'
+    )
+}
+
+# LOG
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'login': {
+            'level': 'DEBUG',
+            'handlers': ['console']
+        }
+    }
 }
 
 # Internationalization

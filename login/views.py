@@ -12,32 +12,128 @@ from login.models import CourseInformation
 
 from rest_framework import viewsets
 
-from login.serializers import UserSerializer
 from login.serializers import ParentSerializer
 from login.serializers import ClassInfoSerializer
 from login.serializers import TeacherSerializer
 from login.serializers import CourseInfoSerializer
 from login.serializers import SchoolSerializer
 from login.serializers import OrganizationSerializer
-
+from login.serializers import CreateUserSerializer
 
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
+from rest_framework import exceptions
+
+from login.exceptions import KeyFoundError, NotLogin
+from login import errorcode
+from django.core.exceptions import ValidationError
+import logging
+
+
+# get logger
+logger = logging.getLogger(__name__)
+
+
+def make_success_data(data={}):
+    """
+    add error code
+    """
+    data['error_code'] = errorcode.SUCCESS
+    # logger.debug('make_success_data: ' + str(data))
+    return data
 
 
 # Create your views here.
-# login and register in system,with json data
-class UserViewSet(viewsets.ModelViewSet):
+class UserInfoView(APIView):
     """
-    API endpoint that allows user to be register
+    user view for register,get and edit profile
 
+    method get, post ,put
     """
-    permission_classes = (IsAuthenticated,)
-    queryset = LocalUser.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'telephone'
+
+    def post(self, request):
+        """
+        user view for register
+        """
+        logger.debug('get userinfoview method:post')
+        se = CreateUserSerializer(data=request.data)
+        try:
+            se.is_valid(raise_exception=True)
+            tel = se.data['telephone']
+            password = se.data['password']
+        except KeyError, e:
+            logger.debug('get userinfoview method:post:keyError:' + str(se.data))
+            raise KeyFoundError(e.__str__())
+        except exceptions.ValidationError, e:
+            logger.debug('get LocalUserAuthentication method:authenticate:ValidationError' + e.__str__())
+            raise e
+
+        user = LocalUser(telephone=tel)
+        user.set_password(password)
+        user.save()
+        return Response(make_success_data())
+
+    def get(self, request):
+        """
+        get user profile
+        """
+        logger.info('get userinfoview method:get')
+        if request.user.is_authenticated():
+            reg_info = LocalUser.objects.filter(telephone=request.user.get_username()).values('telephone',
+                                                                                              'username',
+                                                                                              'email',
+                                                                                              'type',
+                                                                                              'date_joined')
+            logger.debug('get userinfoview method:get:reg_info: ' + str(reg_info))
+            return Response(make_success_data(reg_info[0]))
+        else:
+            logger.debug('get userinfoview method:get:notLogin')
+            raise NotLogin()
+
+    def put(self, request):
+        """
+        update user reg profile
+        """
+        logger.debug('get userinfoview method:put')
+
+        if request.user.is_authenticated():
+            if hasattr(request.data, 'password'):
+                logger.debug('get userinfoview method:put:setpassword')
+                request.user.set_password(getattr(request.data, 'password'))
+                request.data.pop('password')
+
+            # unique check for telephone,username,email
+            for attr, value in request.date.items():
+                setattr(request.user, attr, value)
+            try:
+                request.user.full_clean()
+                request.user.save()
+            except ValidationError as e:
+                logger.debug('get userinfoview method:put:validationError')
+
+                exc = serializers.ValidationError()
+                if 'telephone' in e.message_dict:
+                    setattr(exc, 'error_code', errorcode.TELEPHONE_EXISTS)
+                    exc.detail = e.message_dict['telephone']
+
+                elif 'username' in e.message_dict:
+                    setattr(exc, 'error_code', errorcode.USERNAME_EXISTS)
+                    exc.detail = e.message_dict['username']
+
+                elif 'email' in e.message_dict:
+                    setattr(exc, 'error_code', errorcode.EMAIL_EXISTS)
+                    exc.detail = e.message_dict['email']
+
+                raise exc
+
+            return Response(make_success_data())
+        else:
+            logger.debug('get userinfoview method:put:notLogin')
+            raise NotLogin()
 
 
 class ParentViewSet(viewsets.ModelViewSet):
@@ -105,6 +201,7 @@ class CourseInfoViewSet(viewsets.ModelViewSet):
 
 
 @api_view(('GET',))
+# @permission_classes([IsAuthenticated],)
 def api_root(request):
     """
     API entry point

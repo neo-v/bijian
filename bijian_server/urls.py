@@ -19,7 +19,6 @@ from login import views
 from django.contrib import admin
 
 regrouter = RegiserRouter(trailing_slash=False)
-regrouter.register(r'users', views.UserViewSet, base_name='localuser')
 regrouter.register(r'parents', views.ParentViewSet, )
 regrouter.register(r'teachers', views.TeacherViewSet, )
 regrouter.register(r'schools', views.SchoolViewSet, )
@@ -33,6 +32,7 @@ urlpatterns = [
     url(r'^api/$', views.api_root),
     url(r'^api/', include(regrouter.urls)),
     url(r'^api/', include(read_only.urls)),
+    url(r'^api/users/$', views.UserInfoView.as_view(), name='localuser-list'),
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

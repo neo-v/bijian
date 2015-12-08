@@ -13,6 +13,7 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 # user table for bijian app
@@ -95,6 +96,9 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(
         _('email address'), blank=True,
+        validators=[
+            validators.EmailValidator(_('Enter a valid email'), 'invalid'),
+        ],
         error_messages={
             'unique': _("A email with that email already exists."),
         })
@@ -151,6 +155,21 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
         :return: string platfrom
         """
         return self.social_id.split('_')[0]
+
+    def get_telephone(self):
+        return self.telephone
+
+    def get_name(self):
+        return self.username
+
+    def clean(self):
+        """
+        check unique of username and email ,default = NONE
+        """
+        if self.username and LocalUser.objects.exclude(id=self.id).filter(username=self.username):
+            raise ValidationError({'username': _('username has already exist')})
+        if self.email and LocalUser.objects.exclude(id=self.id).filter(email=self.email):
+            raise ValidationError({'email': _('email has already exist')})
 
 
 # parent detail table

@@ -13,77 +13,103 @@ from login.models import OrganizationDetail
 from login.models import SchoolDetail
 
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from login.exceptions import KeyFoundError
+import logging
+# from rest_framework.validators import UniqueValidator
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+logger = logging.getLogger(__name__)
 
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    """
+    create user serializer input data
+    include telephone password
+    """
     class Meta:
         model = LocalUser
-        fields = ('url', 'telephone', 'password', 'type', 'date_joined',)
-        extra_kwargs = {
-            'url': {'lookup_field': 'telephone'},
-        }
+        fields = ('telephone', 'password')
 
-    def create(self, validated_data):
-        user = LocalUser(
-            telephone=validated_data['telephone']
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+    # def create(self, validated_data):
+    #     """
+    #     create user use serializer
+    #     :param validated_data:
+    #     :return:user instance
+    #     """
+    #     try:
+    #         logger.debug('create user serializer :pick data')
+    #         tel = validated_data['telephone']
+    #         password = validated_data['password']
+    #     except KeyError, e:
+    #         logger.debug('create user serializer :keyError')
+    #         raise KeyFoundError(e.__str__())
+    #
+    #     user = LocalUser(telephone=tel)
+    #     user.set_password(password)
+    #     user.save()
+    #     return user
+
+
+class AuthUserSerializer(serializers.ModelSerializer):
+    """
+    create user serializer input data
+    include telephone password
+    """
+    class Meta:
+        model = LocalUser
+        fields = ('username', 'password')
 
 
 class ParentSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.HyperlinkedRelatedField(read_only=True,
-                                               validators=[UniqueValidator(queryset=ParentDetail.objects.all())],
-                                               view_name='localuser-detail',
-                                               lookup_field='telephone')
+    # user = serializers.HyperlinkedRelatedField(read_only=True,
+    #                                            validators=[UniqueValidator(queryset=ParentDetail.objects.all())],
+    #                                            view_name='localuser-detail',
+    #                                            lookup_field='telephone')
     class_id = serializers.HyperlinkedRelatedField(queryset=ClassInformation.objects.all(),
                                                    view_name='classinfo-detail')
 
     class Meta:
         model = ParentDetail
-        # exclude = ('user', 'class_id')
-        fields = '__all__'
-        read_only_fields = ('id', 'user')
+        exclude = ('user',)
+        # fields = '__all__'
+        read_only_fields = ('id', 'class_id')
 
 
 class TeacherSerializer(serializers.HyperlinkedModelSerializer):
 
-    user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
-                                               lookup_field='telephone')
+    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
+    #                                            lookup_field='telephone')
     class_id = serializers.HyperlinkedRelatedField(queryset=ClassInformation.objects.all(),
                                                    view_name='classinfo-detail')
     course = serializers.HyperlinkedRelatedField(read_only=True, view_name='courseinfo-detail')
 
     class Meta:
         model = TeacherDetail
-        # exclude = ('user', 'class_id')
-        fields = '__all__'
-        read_only_fields = ('id', 'user')
+        exclude = ('user', )
+        # fields = '__all__'
+        read_only_fields = ('id',)
 
 
 class SchoolSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
-                                               lookup_field='telephone')
+    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
+    #                                            lookup_field='telephone')
 
     class Meta:
         model = SchoolDetail
-        # exclude = ('user', 'class_id')
-        fields = '__all__'
-        read_only_fields = ('id', 'user')
+        exclude = ('user', )
+        #fields = '__all__'
+        read_only_fields = ('id', )
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
-                                               lookup_field='telephone')
+    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
+    #                                            lookup_field='telephone')
 
     class Meta:
         model = OrganizationDetail
-        # exclude = ('user', 'class_id')
-        fields = '__all__'
-        read_only_fields = ('id', 'user')
+        exclude = ('user', )
+        # fields = '__all__'
+        read_only_fields = ('id', )
 
 
 class ClassInfoSerializer(serializers.HyperlinkedModelSerializer):
