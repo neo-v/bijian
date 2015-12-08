@@ -9,4 +9,4 @@
 manage.py
 
 # ignore migrations
-migrations/*
+login/migrations/*
