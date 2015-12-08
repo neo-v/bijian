@@ -12,13 +12,13 @@ class RegiserRouter(SimpleRouter):
     """
     routes = [
         Route(
-            url=r'^{prefix}/$',
+            url=r'^{prefix}',
             mapping={'post': 'create', 'get': 'list'},
             name='{basename}-list',
             initkwargs={'suffix': 'List'}
         ),
         Route(
-            url=r'^{prefix}/{lookup}/$',
+            url=r'^{prefix}/{lookup}',
             mapping={'get': 'retrieve', 'put': 'update'},
             name='{basename}-detail',
             initkwargs={'suffix': 'Detail'}
@@ -32,13 +32,13 @@ class ReadOnlyRouter(SimpleRouter):
     """
     routes = [
         Route(
-            url=r'^{prefix}/$',
+            url=r'^{prefix}',
             mapping={'get': 'list'},
             name='{basename}-list',
             initkwargs={'suffix': 'List'}
         ),
         Route(
-            url=r'^{prefix}/{lookup}/$',
+            url=r'^{prefix}/{lookup}',
             mapping={'get': 'retrieve', },
             name='{basename}-detail',
             initkwargs={'suffix': 'Detail'}

@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^api/$', views.api_root),
     url(r'^api/', include(regrouter.urls)),
     url(r'^api/', include(read_only.urls)),
-    url(r'^api/users/$', views.UserInfoView.as_view(), name='localuser-list'),
+    url(r'^api/users', views.UserInfoView.as_view(), name='localuser-list'),
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

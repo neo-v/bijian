@@ -28,7 +28,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = LocalUser
-        fields = ('telephone', 'password')
+        fields = ('telephone', 'password', 'status')
 
     # def create(self, validated_data):
     #     """

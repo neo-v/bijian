@@ -87,7 +87,7 @@ class UserInfoView(APIView):
             reg_info = LocalUser.objects.filter(telephone=request.user.get_username()).values('telephone',
                                                                                               'username',
                                                                                               'email',
-                                                                                              'type',
+                                                                                              'status',
                                                                                               'date_joined')
             logger.debug('get userinfoview method:get:reg_info: ' + str(reg_info))
             return Response(make_success_data(reg_info[0]))
