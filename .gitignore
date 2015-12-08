@@ -10,3 +10,6 @@ manage.py
 
 # ignore migrations
 login/migrations/*
+
+# ignore database file
+bijian_server/db.*
