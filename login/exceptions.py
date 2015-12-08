@@ -10,15 +10,19 @@ from rest_framework import status
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_text
 from login import errorcode
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def api_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
-
+    logger.debug('api exception handler...')
     # Now add the error code to the response.
-    if response and not hasattr(response, 'detail'):
+    if response and 'detail' not in response.data:
+        logger.debug('api exception handler:reponse: ' + str(response.data))
         data = str(response.data)
         response.data.clear()
         response.data['detail'] = data

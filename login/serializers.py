@@ -50,16 +50,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
     #     return user
 
 
-class AuthUserSerializer(serializers.ModelSerializer):
-    """
-    create user serializer input data
-    include telephone password
-    """
-    class Meta:
-        model = LocalUser
-        fields = ('username', 'password')
-
-
 class ParentSerializer(serializers.HyperlinkedModelSerializer):
     # user = serializers.HyperlinkedRelatedField(read_only=True,
     #                                            validators=[UniqueValidator(queryset=ParentDetail.objects.all())],

@@ -65,14 +65,15 @@ class UserInfoView(APIView):
             se.is_valid(raise_exception=True)
             tel = se.data['telephone']
             password = se.data['password']
+            status = se.data['status']
         except KeyError, e:
             logger.debug('get userinfoview method:post:keyError:' + str(se.data))
             raise KeyFoundError(e.__str__())
         except exceptions.ValidationError, e:
-            logger.debug('get LocalUserAuthentication method:authenticate:ValidationError' + e.__str__())
+            logger.debug('get userinfoview method:post:ValidationError' + e.__str__())
             raise e
 
-        user = LocalUser(telephone=tel)
+        user = LocalUser(telephone=tel, status=status)
         user.set_password(password)
         user.save()
         return Response(make_success_data())
@@ -206,7 +207,6 @@ def api_root(request):
     """
     API entry point
     param request:get
-    return:
     """
 
     return Response({

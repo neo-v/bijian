@@ -72,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bijian_server.wsgi.application'
 
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'login.authbackends.LocalUserAuthentication',)
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -95,7 +96,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'login.authentication.LocalUserAuthentication'
     )
 }
 

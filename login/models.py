@@ -29,7 +29,7 @@ from django.core.exceptions import ValidationError
 class LocalUserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, telephone, password, email,
+    def _create_user(self, telephone, password, email, status,
                      is_staff, is_superuser, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
@@ -38,7 +38,7 @@ class LocalUserManager(BaseUserManager):
         if not telephone:
             raise ValueError('The given telephone must be set')
         email = self.normalize_email(email)
-        user = self.model(telephone=telephone, email=email,
+        user = self.model(telephone=telephone, email=email, status=status,
                           is_staff=is_staff, is_active=True,
                           is_superuser=is_superuser,
                           date_joined=now, **extra_fields)
@@ -46,12 +46,12 @@ class LocalUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, telephone, password=None, email=None, **extra_fields):
+    def create_user(self, telephone, password, email=None, **extra_fields):
         return self._create_user(telephone, password, email, False, False,
                                  **extra_fields)
 
-    def create_superuser(self, telephone, password, email, **extra_fields):
-        return self._create_user(telephone, password, email, True, True,
+    def create_superuser(self, telephone, password, email, status, **extra_fields):
+        return self._create_user(telephone, password, email, status, True, True,
                                  **extra_fields)
 
 
@@ -104,7 +104,7 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
         })
     # store as platform_openid
     social_id = models.CharField(_('social_id'), max_length=30, blank=True)
-    type = models.CharField(_('type'), max_length=30, blank=True, choices=TYPE_CHOICES, default=PARENT)
+    status = models.CharField(_('status'), max_length=30, blank=True, choices=TYPE_CHOICES, default=PARENT)
 
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
@@ -122,7 +122,7 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
     objects = LocalUserManager()
 
     USERNAME_FIELD = 'telephone'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['email', 'status']
 
     class Meta:
         verbose_name = _('user')

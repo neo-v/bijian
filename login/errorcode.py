@@ -18,7 +18,8 @@ KEYNOTFOUND = 1003
 
 
 NOTLOGINYET = 1004
-LOGNGERROR = 1005
+# AUTHERROR = 1005
+
 
 
 def get_errorcode(exc):

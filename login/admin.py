@@ -39,7 +39,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = get_user_model()
-        fields = ("telephone",)
+        fields = ("telephone", "status")
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -106,7 +106,7 @@ class UserChangeForm(forms.ModelForm):
 class MyUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('telephone', 'password')}),
-        (_('Personal info'), {'fields': ('username', 'first_name', 'last_name', 'email', 'social_id', 'type')}),
+        (_('Personal info'), {'fields': ('username', 'first_name', 'last_name', 'email', 'social_id', 'status')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -114,12 +114,12 @@ class MyUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('telephone', 'password1', 'password2'),
+            'fields': ('telephone', 'status', 'password1', 'password2'),
         }),
     )
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ('telephone', 'username', 'email', 'social_id', 'type', 'first_name', 'last_name', 'is_staff')
+    list_display = ('telephone', 'username', 'email', 'social_id', 'status', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('telephone', 'username', 'email')
     ordering = ('telephone', 'username',)
