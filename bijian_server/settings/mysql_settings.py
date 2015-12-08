@@ -9,8 +9,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bijian_sql_db',
         'USER': 'kumeng_1234',
-        'PASSWORD': 'kumeng_1234',
-        'HOST': 'rds6iby5sh94840g8e06.mysql.rds.aliyuncs.com',
+        'PASSWORD': 'kumeng1234',
+        'HOST': 'rdsaliyunbijiansql1234.mysql.rds.aliyuncs.com',
         'PORT': '3306',
    }
 }
