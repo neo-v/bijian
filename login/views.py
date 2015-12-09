@@ -12,12 +12,12 @@ from login.models import CourseInformation
 
 from rest_framework import viewsets
 
-from login.serializers import ParentSerializer
+from login.serializers import FullParentSerializer, BasicParentSerializer
 from login.serializers import ClassInfoSerializer
-from login.serializers import TeacherSerializer
+from login.serializers import FullTeacherSerializer, BasicTeacherSerializer
 from login.serializers import CourseInfoSerializer
-from login.serializers import SchoolSerializer
-from login.serializers import OrganizationSerializer
+from login.serializers import FullSchoolSerializer, BasicSchoolSerializer
+from login.serializers import FullOrganizationSerializer, BasicOrganizationSerializer
 from login.serializers import CreateUserSerializer
 
 from rest_framework.decorators import api_view
@@ -31,6 +31,8 @@ from rest_framework import exceptions
 from login.exceptions import KeyFoundError, NotLogin
 from login import errorcode
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404 as _get_object_or_404
+from django.http import Http404
 import logging
 
 
@@ -45,6 +47,19 @@ def make_success_data(data={}):
     data['error_code'] = errorcode.SUCCESS
     # logger.debug('make_success_data: ' + str(data))
     return data
+
+
+def get_object_or_404(queryset, *filter_args, **filter_kwargs):
+    """
+    Same as Django's standard shortcut, but make sure to also raise 404
+    if the filter_kwargs don't match the required types.
+    """
+    try:
+        logger.debug('get_object_or_404')
+        return _get_object_or_404(queryset, *filter_args, **filter_kwargs)
+    except (TypeError, ValueError, Http404), e:
+        logger.debug('get_object_or_404:except:' + e.__str__())
+        raise exceptions.NotFound()
 
 
 # Create your views here.
@@ -76,6 +91,7 @@ class UserInfoView(APIView):
         user = LocalUser(telephone=tel, status=status)
         user.set_password(password)
         user.save()
+
         return Response(make_success_data())
 
     def get(self, request):
@@ -137,48 +153,103 @@ class UserInfoView(APIView):
             raise NotLogin()
 
 
-class ParentViewSet(viewsets.ModelViewSet):
+class DetailView(viewsets.ModelViewSet):
+    """
+    Base class for detail viewset
+    override get_obj()
+    voerride get_serializer()
+
+    """
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'user_id'
+
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+        override return auth user-detail object
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        # Perform the lookup filtering.
+        if self.request.method == 'PUT':
+            filter_value = str(self.request.user.pk)
+        else:
+            lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+            assert lookup_url_kwarg in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+            )
+            filter_value = self.kwargs[lookup_url_kwarg]
+
+        logger.debug('ParentViewSet:get_object:filter_value:' + filter_value)
+
+        filter_kwargs = {self.lookup_field: filter_value}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer for diff user
+        Defaults to using `self.serializer_class`.
+
+        """
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        try:
+            if self.request.method == 'GET' and (self.kwargs[lookup_url_kwarg] == str(self.request.user.id)):
+                logger.debug('parent view set:get_serializer_class:owner')
+                return self.full_serializer_class
+        except KeyError, e:
+            logger.debug('parent view set:get_serializer_class:keyError:' + e.__str__())
+        logger.debug('parent view set:get_serializer_class:others:')
+        return self.basic_serializer_class
+
+
+class ParentViewSet(DetailView):
     """
     API endpoint that allows user to be register as parents
     fill with detail information
 
     """
-    permission_classes = (IsAuthenticated,)
     queryset = ParentDetail.objects.all()
-    serializer_class = ParentSerializer
-    # lookup_field = 'user_id'
+    full_serializer_class = FullParentSerializer
+    basic_serializer_class = BasicParentSerializer
 
 
-class TeacherViewSet(viewsets.ModelViewSet):
+class TeacherViewSet(DetailView):
     """
     API endpoint that allows user to be register as a Teacher
     fill with detail information
 
     """
-    permission_classes = (IsAuthenticated,)
     queryset = TeacherDetail.objects.all()
-    serializer_class = TeacherSerializer
-    # lookup_field = 'user_id'
+    full_serializer_class = FullTeacherSerializer
+    basic_serializer_class = BasicTeacherSerializer
 
 
-class SchoolViewSet(viewsets.ModelViewSet):
+class SchoolViewSet(DetailView):
     """
     API endpoint that allows user to be register as School
 
     """
-    permission_classes = (IsAuthenticated,)
     queryset = SchoolDetail.objects.all()
-    serializer_class = SchoolSerializer
+    full_serializer_class = FullSchoolSerializer
+    basic_serializer_class = BasicSchoolSerializer
 
 
-class OrganiztionViewSet(viewsets.ModelViewSet):
+class OrganiztionViewSet(DetailView):
     """
     API endpoint that allows user to be register as a Organization
 
     """
-    permission_classes = (IsAuthenticated,)
     queryset = OrganizationDetail.objects.all()
-    serializer_class = OrganizationSerializer
+    full_serializer_class = FullOrganizationSerializer
+    basic_serializer_class = BasicOrganizationSerializer
 
 
 class ClassInfoViewSet(viewsets.ModelViewSet):

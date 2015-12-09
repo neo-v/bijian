@@ -21,7 +21,6 @@ NOTLOGINYET = 1004
 # AUTHERROR = 1005
 
 
-
 def get_errorcode(exc):
     """
     get error code according to exceptions

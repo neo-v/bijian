@@ -132,6 +132,9 @@ class TeacherAdmin(admin.ModelAdmin):
         (None, {'fields': (('user', 'real_name', 'nick_name', 'contact_phone', 'avatar'),
                            'class_id', 'intro', 'course')}),
         (_('status'), {'fields': ('is_online', 'is_identify', 'is_adviser')}),
+        (_('count'), {'fields': ('record_count', 'question_count', 'answer_count', 'forward_count',
+                                 'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                                 'msg_count', 'review_count',)}),
     )
     readonly_fields = (
         'record_count', 'question_count', 'answer_count', 'forward_count',
@@ -150,6 +153,9 @@ class SchoolAdmin(admin.ModelAdmin):
         (None, {'fields': (('user', 'school_name', 'contact_phone', 'avatar'),
                            'intro', 'courses')}),
         (_('status'), {'fields': ('is_online', 'is_identify', 'identity')}),
+        (_('count'), {'fields': ('record_count', 'question_count', 'answer_count', 'forward_count',
+                                 'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                                 'msg_count', 'review_count',)}),
     )
     readonly_fields = (
         'record_count', 'question_count', 'answer_count', 'forward_count',
@@ -168,6 +174,9 @@ class ParentAdmin(admin.ModelAdmin):
         (None, {'fields': (('user', 'real_name', 'nick_name', 'child_name', 'avatar'),
                            'class_id', 'intro')}),
         (_('status'), {'fields': ('is_online',)}),
+        (_('count'), {'fields': ('record_count', 'question_count', 'answer_count', 'forward_count',
+                                 'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                                 'msg_count', 'review_count',)}),
     )
     readonly_fields = (
         'record_count', 'question_count', 'answer_count', 'forward_count',
@@ -185,6 +194,9 @@ class OrganizationAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': (('user', 'real_name', 'contact_phone', 'avatar'), 'intro')}),
         (_('status'), {'fields': ('is_online', 'is_identify')}),
+        (_('count'), {'fields': ('record_count', 'question_count', 'answer_count', 'forward_count',
+                                 'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                                 'msg_count', 'review_count',)}),
     )
     readonly_fields = (
         'record_count', 'question_count', 'answer_count', 'forward_count',

@@ -17,7 +17,6 @@ from login.exceptions import KeyFoundError
 import logging
 # from rest_framework.validators import UniqueValidator
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -50,22 +49,57 @@ class CreateUserSerializer(serializers.ModelSerializer):
     #     return user
 
 
-class ParentSerializer(serializers.HyperlinkedModelSerializer):
-    # user = serializers.HyperlinkedRelatedField(read_only=True,
-    #                                            validators=[UniqueValidator(queryset=ParentDetail.objects.all())],
-    #                                            view_name='localuser-detail',
-    #                                            lookup_field='telephone')
+class FullParentSerializer(serializers.ModelSerializer):
+    """
+    full profile of parent detail for owner
+    """
+    user = serializers.StringRelatedField(read_only=True)
     class_id = serializers.HyperlinkedRelatedField(queryset=ClassInformation.objects.all(),
                                                    view_name='classinfo-detail')
 
     class Meta:
         model = ParentDetail
-        exclude = ('user',)
+        exclude = ('id', )
         # fields = '__all__'
-        read_only_fields = ('id', 'class_id')
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online')
 
 
-class TeacherSerializer(serializers.HyperlinkedModelSerializer):
+class BasicParentSerializer(serializers.ModelSerializer):
+    """
+    basic profile of parent detail for others
+    """
+    class_id = serializers.HyperlinkedRelatedField(queryset=ClassInformation.objects.all(),
+                                                   view_name='classinfo-detail',)
+
+    class Meta:
+        model = ParentDetail
+        exclude = ('id', 'user')
+        # fields = '__all__'
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online')
+
+
+class FullTeacherSerializer(serializers.ModelSerializer):
+
+    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
+    #                                            lookup_field='telephone')
+    class_id = serializers.HyperlinkedRelatedField(queryset=ClassInformation.objects.all(),
+                                                   view_name='classinfo-detail')
+    course = serializers.HyperlinkedRelatedField(read_only=True, view_name='courseinfo-detail')
+    user = serializers.StringRelatedField(read_only=True)
+    class Meta:
+        model = TeacherDetail
+        exclude = ('id', )
+        # fields = '__all__'
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify')
+
+
+class BasicTeacherSerializer(serializers.ModelSerializer):
 
     # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
     #                                            lookup_field='telephone')
@@ -75,49 +109,75 @@ class TeacherSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TeacherDetail
-        exclude = ('user', )
+        exclude = ('id', 'user')
         # fields = '__all__'
-        read_only_fields = ('id',)
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify')
 
 
-class SchoolSerializer(serializers.HyperlinkedModelSerializer):
-    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
-    #                                            lookup_field='telephone')
+class FullSchoolSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = SchoolDetail
-        exclude = ('user', )
-        #fields = '__all__'
-        read_only_fields = ('id', )
+        exclude = ('id', )
+        # fields = '__all__'
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify', 'identity')
 
 
-class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    # user = serializers.HyperlinkedRelatedField(read_only=True, view_name='localuser-detail',
-    #                                            lookup_field='telephone')
+class BasicSchoolSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SchoolDetail
+        exclude = ('id', 'user')
+        # fields = '__all__'
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify', 'identity')
+
+
+class FullOrganizationSerializer(serializers.ModelSerializer):
+    user = serializers.ModelSerializer(read_only=True)
 
     class Meta:
         model = OrganizationDetail
-        exclude = ('user', )
+        exclude = ('id', )
         # fields = '__all__'
-        read_only_fields = ('id', )
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify', 'identity')
+
+
+class BasicOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrganizationDetail
+        exclude = ('id', 'user')
+        # fields = '__all__'
+        read_only_fields = ('record_count', 'question_count', 'answer_count', 'forward_count',
+                            'dig_count', 'bury_count', 'visit_count', 'follower_count', 'followee_count',
+                            'msg_count', 'review_count', 'is_online', 'is_identify', 'identity')
 
 
 class ClassInfoSerializer(serializers.HyperlinkedModelSerializer):
-    parent_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='parentdetail-detail')
-    teacher_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail')
+    parent_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='parentdetail-detail',
+                                                    lookup_field='user_id')
+    teacher_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail',
+                                                     lookup_field='user_id')
 
     class Meta:
         model = ClassInformation
         # exclude = ('user', 'class_id')
         fields = ('id', 'provence', 'city', 'school', 'grade', 'classes', 'parent_in', 'teacher_in')
         read_only_fields = ('id', 'parent_in', 'teacher_in')
-        extra_kwargs = {
-           # 'url': {'lookup_field': 'user_id'},
-        }
 
 
 class CourseInfoSerializer(serializers.HyperlinkedModelSerializer):
-    teacher_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail')
+    teacher_in = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='teacherdetail-detail',
+                                                     lookup_field='user_id')
 
     class Meta:
         model = CourseInformation
