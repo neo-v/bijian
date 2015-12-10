@@ -19,7 +19,7 @@ def api_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
-    logger.debug('api exception handler...' + exc.message)
+    logger.debug('api exception handler enter:' + exc.__class__.__name__)
     # Now add the error code to the response.
     if response and 'detail' not in response.data:
         logger.debug('api exception handler:reponse: ' + str(response.data))
@@ -30,6 +30,7 @@ def api_exception_handler(exc, context):
     if response is not None:
         response.data['error_code'] = get_errorcode(exc)
 
+    logger.debug('api exception handler leave:')
     return response
 
 

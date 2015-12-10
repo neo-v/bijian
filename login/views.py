@@ -19,6 +19,8 @@ from login.serializers import CourseInfoSerializer
 from login.serializers import FullSchoolSerializer, BasicSchoolSerializer
 from login.serializers import FullOrganizationSerializer, BasicOrganizationSerializer
 from login.serializers import CreateUserSerializer
+from login.view_mixins import JsonCreateMixin, JsonListMixin, JsonRetrieveMixin, JsonUpdateMixin, JsonDestroyMixin
+
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -27,6 +29,7 @@ from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from rest_framework import exceptions
+from rest_framework.viewsets import GenericViewSet
 
 from login.exceptions import KeyFoundError, NotLogin
 from login import errorcode
@@ -34,7 +37,6 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404 as _get_object_or_404
 from django.http import Http404
 import logging
-
 
 # get logger
 logger = logging.getLogger(__name__)
@@ -60,6 +62,16 @@ def get_object_or_404(queryset, *filter_args, **filter_kwargs):
     except (TypeError, ValueError, Http404), e:
         logger.debug('get_object_or_404:except:' + e.__str__())
         raise exceptions.NotFound()
+
+
+class JsonModelViewSet(JsonCreateMixin, JsonListMixin, JsonRetrieveMixin,
+                       JsonUpdateMixin, JsonDestroyMixin, GenericViewSet):
+    """
+    A viewset that provides default `create()`, `retrieve()`, `update()`,
+    `partial_update()`, `destroy()` and `list()` actions.
+    return with error code ,default value: SUCCESS
+    """
+    pass
 
 
 # Create your views here.
@@ -153,7 +165,7 @@ class UserInfoView(APIView):
             raise NotLogin()
 
 
-class DetailView(viewsets.ModelViewSet):
+class DetailView(JsonModelViewSet):
     """
     Base class for detail viewset
     override get_obj()
@@ -183,7 +195,7 @@ class DetailView(viewsets.ModelViewSet):
             )
             filter_value = self.kwargs[lookup_url_kwarg]
 
-        logger.debug('ParentViewSet:get_object:filter_value:' + filter_value)
+        logger.debug(self.__class__.__name__ + ':get_object:filter_value:' + filter_value)
 
         filter_kwargs = {self.lookup_field: filter_value}
         obj = get_object_or_404(queryset, **filter_kwargs)
@@ -202,11 +214,11 @@ class DetailView(viewsets.ModelViewSet):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         try:
             if self.request.method == 'GET' and (self.kwargs[lookup_url_kwarg] == str(self.request.user.id)):
-                logger.debug('parent view set:get_serializer_class:owner')
+                logger.debug(self.__class__.__name__ + ':get_serializer_class:owner')
                 return self.full_serializer_class
         except KeyError, e:
-            logger.debug('parent view set:get_serializer_class:keyError:' + e.__str__())
-        logger.debug('parent view set:get_serializer_class:others:')
+            logger.debug(self.__class__.__name__ + ':get_serializer_class:keyError:' + e.__str__())
+        logger.debug(self.__class__.__name__ + ':get_serializer_class:others:')
         return self.basic_serializer_class
 
 
@@ -252,7 +264,7 @@ class OrganiztionViewSet(DetailView):
     basic_serializer_class = BasicOrganizationSerializer
 
 
-class ClassInfoViewSet(viewsets.ModelViewSet):
+class ClassInfoViewSet(JsonModelViewSet):
     """
     API endpoint that list all class information
 
@@ -262,7 +274,7 @@ class ClassInfoViewSet(viewsets.ModelViewSet):
     serializer_class = ClassInfoSerializer
 
 
-class CourseInfoViewSet(viewsets.ModelViewSet):
+class CourseInfoViewSet(JsonModelViewSet):
     """
     API endpoint that list all course information
 
@@ -283,8 +295,11 @@ def api_root(request):
     return Response({
         'users': reverse('localuser-list', request=request),
         'parents': reverse('parentdetail-list', request=request),
+        'parents/id': reverse('parentdetail-detail', request=request, kwargs={"user_id": 1}),
         'teachers': reverse('teacherdetail-list', request=request),
+        'teachers/id': reverse('teacherdetail-detail', request=request, kwargs={"user_id": 1}),
         'schools': reverse('schooldetail-list', request=request),
+        'schools/id': reverse('schooldetail-detail', request=request, kwargs={"user_id": 1}),
         'organizations': reverse('organizationdetail-list', request=request),
         'classinfomation': reverse('classinfo-list', request=request),
         'courseinfomation': reverse('courseinfo-list', request=request)
