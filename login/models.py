@@ -162,14 +162,14 @@ class LocalUser(AbstractBaseUser, PermissionsMixin):
     def get_name(self):
         return self.username
 
-    def clean(self):
-        """
-        check unique of username and email ,default = NONE
-        """
-        if self.username and LocalUser.objects.exclude(id=self.id).filter(username=self.username):
-            raise ValidationError({'username': _('username has already exist')})
-        if self.email and LocalUser.objects.exclude(id=self.id).filter(email=self.email):
-            raise ValidationError({'email': _('email has already exist')})
+    # def clean(self):
+    #     """
+    #     check unique of username and email ,default = NONE
+    #     """
+    #     if LocalUser.objects.exclude(id=self.id).filter(username=self.username):
+    #         raise ValidationError({'username': _('username has already exist')})
+    #     if LocalUser.objects.exclude(id=self.id).filter(email=self.email):
+    #         raise ValidationError({'email': _('email has already exist')})
 
 
 # parent detail table

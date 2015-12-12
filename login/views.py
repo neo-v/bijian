@@ -9,8 +9,8 @@ from login.models import SchoolDetail
 from login.models import OrganizationDetail
 from login.models import ClassInformation
 from login.models import CourseInformation
-
-from rest_framework import viewsets
+from login.exceptions import KeyFoundError, NotLogin, LoginYet, LoginError
+from login import errorcode
 
 from login.serializers import FullParentSerializer, BasicParentSerializer
 from login.serializers import ClassInfoSerializer
@@ -18,9 +18,8 @@ from login.serializers import FullTeacherSerializer, BasicTeacherSerializer
 from login.serializers import CourseInfoSerializer
 from login.serializers import FullSchoolSerializer, BasicSchoolSerializer
 from login.serializers import FullOrganizationSerializer, BasicOrganizationSerializer
-from login.serializers import CreateUserSerializer
+from login.serializers import CreateUserSerializer, LoginUserSerializer, UpdateUserSerializer
 from login.view_mixins import JsonCreateMixin, JsonListMixin, JsonRetrieveMixin, JsonUpdateMixin, JsonDestroyMixin
-
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -31,11 +30,10 @@ from rest_framework import serializers
 from rest_framework import exceptions
 from rest_framework.viewsets import GenericViewSet
 
-from login.exceptions import KeyFoundError, NotLogin
-from login import errorcode
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404 as _get_object_or_404
 from django.http import Http404
+from django.contrib.auth import authenticate, login as auth_login
 import logging
 
 # get logger
@@ -46,9 +44,12 @@ def make_success_data(data={}):
     """
     add error code
     """
-    data['error_code'] = errorcode.SUCCESS
-    # logger.debug('make_success_data: ' + str(data))
-    return data
+    ndata = {'error_code': errorcode.SUCCESS}
+    if data:
+        ndata["data"] = data
+
+    logger.debug('make_success_data: ' + str(data))
+    return ndata
 
 
 def get_object_or_404(queryset, *filter_args, **filter_kwargs):
@@ -90,11 +91,11 @@ class UserInfoView(APIView):
         se = CreateUserSerializer(data=request.data)
         try:
             se.is_valid(raise_exception=True)
-            tel = se.data['telephone']
-            password = se.data['password']
-            status = se.data['status']
+            tel = se.validated_data['telephone']
+            password = se.validated_data['password']
+            status = se.validated_data['status']
         except KeyError, e:
-            logger.debug('get userinfoview method:post:keyError:' + str(se.data))
+            logger.debug('get userinfoview method:post:keyError:' + str(se.validated_data))
             raise KeyFoundError(e.__str__())
         except exceptions.ValidationError, e:
             logger.debug('get userinfoview method:post:ValidationError' + e.__str__())
@@ -128,21 +129,13 @@ class UserInfoView(APIView):
         update user reg profile
         """
         logger.debug('get userinfoview method:put')
-
         if request.user.is_authenticated():
-            if hasattr(request.data, 'password'):
-                logger.debug('get userinfoview method:put:setpassword')
-                request.user.set_password(getattr(request.data, 'password'))
-                request.data.pop('password')
+            se = UpdateUserSerializer(instance=request.user, data=request.data, partial=True)
 
-            # unique check for telephone,username,email
-            for attr, value in request.date.items():
-                setattr(request.user, attr, value)
             try:
-                request.user.full_clean()
-                request.user.save()
+                se.is_valid(raise_exception=True)
             except ValidationError as e:
-                logger.debug('get userinfoview method:put:validationError')
+                logger.debug('get userinfoview method:put:validationError' + str(e.message_dict))
 
                 exc = serializers.ValidationError()
                 if 'telephone' in e.message_dict:
@@ -159,6 +152,18 @@ class UserInfoView(APIView):
 
                 raise exc
 
+            if 'password' in se.validated_data:
+                logger.debug('get userinfoview method:put:setpassword')
+                request.user.set_password(se.validated_data['password'])
+                se.data.pop('password')
+
+            # unique check for telephone,username,email
+
+            for attr, value in se.validated_data.items():
+                setattr(request.user, attr, value)
+
+            request.user.save()
+
             return Response(make_success_data())
         else:
             logger.debug('get userinfoview method:put:notLogin')
@@ -169,7 +174,7 @@ class DetailView(JsonModelViewSet):
     """
     Base class for detail viewset
     override get_obj()
-    voerride get_serializer()
+    override get_serializer()
 
     """
     permission_classes = (IsAuthenticated,)
@@ -284,6 +289,28 @@ class CourseInfoViewSet(JsonModelViewSet):
     serializer_class = CourseInfoSerializer
 
 
+@api_view(('POST',))
+# @permission_classes([IsAuthenticated],)
+def login(request):
+    """
+    login view
+    """
+    if request.user.is_authenticated():
+        raise LoginYet()
+    else:
+        se = LoginUserSerializer(data=request.data)
+        se.is_valid(raise_exception=True)
+        # auth user
+        user_cache = authenticate(username=se.validated_data["username"], password=se.validated_data["password"])
+
+        # auth correct
+        if user_cache and user_cache.is_active:
+            auth_login(request, user_cache)
+            return Response(make_success_data())
+
+        raise LoginError()
+
+
 @api_view(('GET',))
 # @permission_classes([IsAuthenticated],)
 def api_root(request):
@@ -302,5 +329,6 @@ def api_root(request):
         'schools/id': reverse('schooldetail-detail', request=request, kwargs={"user_id": 1}),
         'organizations': reverse('organizationdetail-list', request=request),
         'classinfomation': reverse('classinfo-list', request=request),
-        'courseinfomation': reverse('courseinfo-list', request=request)
+        'courseinfomation': reverse('courseinfo-list', request=request),
+        'login': reverse('login_json', request=request)
     })

@@ -13,7 +13,10 @@ from login.models import OrganizationDetail
 from login.models import SchoolDetail
 
 from rest_framework import serializers
-from login.exceptions import KeyFoundError
+
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
+
 import logging
 # from rest_framework.validators import UniqueValidator
 
@@ -29,24 +32,39 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = LocalUser
         fields = ('telephone', 'password', 'status')
 
-    # def create(self, validated_data):
-    #     """
-    #     create user use serializer
-    #     :param validated_data:
-    #     :return:user instance
-    #     """
-    #     try:
-    #         logger.debug('create user serializer :pick data')
-    #         tel = validated_data['telephone']
-    #         password = validated_data['password']
-    #     except KeyError, e:
-    #         logger.debug('create user serializer :keyError')
-    #         raise KeyFoundError(e.__str__())
-    #
-    #     user = LocalUser(telephone=tel)
-    #     user.set_password(password)
-    #     user.save()
-    #     return user
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    """
+    create user serializer input data
+    include telephone password
+    """
+    class Meta:
+        model = LocalUser
+        read_only_fields = ('is_active', 'date_joined', 'is_staff', 'status',)
+
+    def validate_username(self, value, required=False):
+        logger.debug("validate_username:" + value)
+        if value and LocalUser.objects.exclude(id=self.instance.id).filter(username=value):
+            raise ValidationError({'username': _('username has already exist')})
+        return value
+
+    def validate_email(self, value, required=False):
+
+        if value and LocalUser.objects.exclude(id=self.instance.id).filter(email=value):
+            logger.debug("validate_email:false")
+            raise ValidationError({'email': _('email has already exist')})
+        return value
+
+
+
+class LoginUserSerializer(serializers.ModelSerializer):
+    """
+    login user serializer input data
+    include username password
+    """
+    class Meta:
+        model = LocalUser
+        fields = ('username', 'password')
 
 
 class FullParentSerializer(serializers.ModelSerializer):

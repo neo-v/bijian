@@ -19,7 +19,7 @@ def api_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
-    logger.debug('api exception handler enter:' + exc.__class__.__name__)
+    logger.debug('api exception handler enter:' + exc.__class__.__name__ + exc.message)
     # Now add the error code to the response.
     if response and 'detail' not in response.data:
         logger.debug('api exception handler:reponse: ' + str(response.data))
@@ -30,7 +30,7 @@ def api_exception_handler(exc, context):
     if response is not None:
         response.data['error_code'] = get_errorcode(exc)
 
-    logger.debug('api exception handler leave:')
+    logger.debug('api exception handler leave:' + str(response.data))
     return response
 
 
@@ -56,3 +56,21 @@ class NotLogin(APIException):
     error_code = errorcode.NOTLOGINYET
     status_code = status.HTTP_403_FORBIDDEN
     default_detail = _('not login yet')
+
+
+class LoginYet(APIException):
+    """
+    login yet
+    """
+    error_code = errorcode.LOGIN_YET
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _('you have login yet')
+
+
+class LoginError(APIException):
+    """
+    login error for some reasons
+    """
+    error_code = errorcode.LOGIN_ERROR
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _('login error')
